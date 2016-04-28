@@ -8,8 +8,6 @@
 # take two puppet runs for the facts to be correctly populated.
 
 class disk_stats {
-  if ! defined ( Package['rubygems'] )   { package { 'rubygems':   ensure => installed, } }
-
   case $::operatingsystem {
     'CentOS', 'RedHat': {
       if ! defined ( Package['ruby-devel'] ) { package { 'ruby-devel': ensure => installed, } }
@@ -25,6 +23,12 @@ class disk_stats {
   $env_path = $::operatingsystem ? {
     /^(CentOS|RedHat)$/ => '/bin/env',
     /^(Ubuntu|Debian)$/ => '/usr/bin/env',
+  }
+
+  exec { 'Install ffi rubygem dependency':
+    command => "${env_path} gem install ffi -v 1.1.5",
+    unless  => "${env_path} gem list --local | /bin/grep sys-filesystem",
+    require => $require_list,
   }
 
   exec { 'Install sys-filesystem rubygem dependency':

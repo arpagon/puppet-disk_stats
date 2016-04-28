@@ -64,6 +64,10 @@ if gem_present
     Facter.add("disk_stats#{label}_options") do
       setcode { m.options }
     end
+    
+    Facter.add("disk_stats#{label}_percentage") do
+      setcode { (((( stats.blocks - stats.blocks_available ) * 1.0 ) / stats.blocks) * 100.0).round }
+    end
 
     # Strip leading '_' from the label.
     disks.push label[1..-1]
